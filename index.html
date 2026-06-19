@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HNS PRO POS</title>
-  <link rel="icon" href="https://thumbs.dreamstime.com/b/cashier-machine-icon-vector-image-suitable-mobile-application-web-print-media-278295043.jpg" />
+  <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/9/98/Kota_Bengkulu.png" />
   <style>
     html, body {
       margin: 0;
@@ -31,6 +31,10 @@
 </head>
 <body>
   <div class="iframe-container">
+    <!-- 
+      ✨ [UPDATE: Menambahkan deklarasi perizinan 'bluetooth' pada atribut allow di bawah] 
+      Sangat penting agar Google Chrome mengizinkan Web Bluetooth API berjalan tanpa diblokir oleh Permissions Policy.
+    -->
     <iframe
       id="app"
       src="https://script.google.com/macros/s/AKfycbyRUuCzBOvG2kwGLStWK79w9WwgI-Uk7vZaKpPEex6SPmh1KdhiC3eU7ic3TUnUvnq9Bw/exec"
@@ -38,7 +42,7 @@
       allowfullscreen="true"
       webkitallowfullscreen="true"
       mozallowfullscreen="true"
-      allow="fullscreen; camera; microphone; display-capture; geolocation;">
+      allow="fullscreen; camera; microphone; display-capture; geolocation; bluetooth;">
     </iframe>
   </div>
 </body>
