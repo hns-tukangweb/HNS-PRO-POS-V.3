@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>HNS PRO POS</title>
-  <link rel="icon" href="https://static.vecteezy.com/system/resources/previews/020/428/102/original/cashier-icon-vector.jpg" />
+  <link rel="icon" href="https://upload.wikimedia.org/wikipedia/commons/9/98/Kota_Bengkulu.png" />
   <!-- SweetAlert2 untuk Notifikasi di Tingkat Wrapper -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <style>
@@ -29,6 +29,35 @@
       height: 100%;
       border: none;
     }
+
+    /* Area cetak wrapper khusus untuk menangkap render struk kasir tanpa popup blocker */
+    #wrapperPrintArea {
+      display: none;
+    }
+
+    /* ✨ [FIX: SINKRONISASI MEDIA CETAK ATAS] */
+    @media print {
+      body {
+        background-color: #ffffff !important;
+        color: #000000 !important;
+      }
+      .iframe-container {
+        display: none !important;
+      }
+      #wrapperPrintArea {
+        display: block !important;
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        background: #ffffff !important;
+      }
+      #wrapperPrintArea * {
+        color: #000000 !important;
+      }
+    }
   </style>
 </head>
 <body>
@@ -47,6 +76,9 @@
       allow="fullscreen; camera; microphone; display-capture; geolocation; bluetooth; usb; serial;">
     </iframe>
   </div>
+
+  <!-- Area render cetak aman di tingkat atas peramban -->
+  <div id="wrapperPrintArea"></div>
 
   <!-- ✨ [UPDATE: Penambahan Jembatan Cetak & Bluetooth (Iframe PostMessage Bridge)] -->
   <script>
@@ -117,16 +149,25 @@
       }
 
       // 3. Aksi Chrome Print Tanpa Stuck (Browser Dialog)
+      // ✨ [FIX: BYPASS BROWSER POPUP BLOCKER DI MOBILE CHROME]
       if (request.type === 'EXECUTE_BROWSER_PRINT') {
         try {
-          const printWindow = window.open('', '_blank', 'width=400,height=600');
-          if (printWindow) {
-            printWindow.document.open();
-            printWindow.document.write(request.htmlContent);
-            printWindow.document.close();
-          } else {
-            Swal.fire('Pop-up Diblokir', 'Izinkan izin pop-up pada peramban Chrome untuk mencetak nota.', 'warning');
-          }
+          const printArea = document.getElementById('wrapperPrintArea');
+          const iframeCon = document.querySelector('.iframe-container');
+          
+          // Tulis konten struk langsung ke div tingkat atas
+          printArea.innerHTML = request.htmlContent;
+          printArea.style.display = 'block';
+          iframeCon.style.display = 'none';
+          
+          // Berikan jeda kecil untuk penyesuaian render DOM, lalu cetak secara native
+          setTimeout(() => {
+            window.print();
+            // Kembalikan ke tampilan dasbor kasir semula setelah mencetak
+            iframeCon.style.display = 'block';
+            printArea.style.display = 'none';
+            printArea.innerHTML = '';
+          }, 150);
         } catch (browserPrintErr) {
           Swal.fire("Gagal Membuka Struk", browserPrintErr.message, "error");
         }
